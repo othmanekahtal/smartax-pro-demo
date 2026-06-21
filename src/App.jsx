@@ -8,6 +8,8 @@ import Calendrier  from './pages/Calendrier';
 import Documents   from './pages/Documents';
 import Parametres  from './pages/Parametres';
 import Depenses    from './pages/Depenses';
+import Revenus     from './pages/Revenus';
+import Factures    from './pages/Factures';
 
 const PAGES = {
   dashboard:    Dashboard,
@@ -17,6 +19,8 @@ const PAGES = {
   documents:    Documents,
   parametres:   Parametres,
   depenses:     Depenses,
+  revenus:      Revenus,
+  factures:     Factures,
 };
 
 export default function App() {

@@ -10,6 +10,8 @@ const PAGE_LABELS = {
   documents:    'Documents',
   parametres:   'Paramètres',
   depenses:     'Dépenses',
+  revenus:      'Revenus',
+  factures:     'Factures',
 };
 
 function AvatarDropdown() {
@@ -71,7 +73,7 @@ export default function TopBar({ activePage, search, setSearch }) {
       <div className="flex-1" />
 
       {/* Search — shown on pages where it's useful */}
-      {(activePage === 'societes' || activePage === 'declarations' || activePage === 'documents' || activePage === 'depenses') && (
+      {(activePage === 'societes' || activePage === 'declarations' || activePage === 'documents' || activePage === 'depenses' || activePage === 'revenus' || activePage === 'factures') && (
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           <input

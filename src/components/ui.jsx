@@ -130,11 +130,15 @@ const SheetOverlay = forwardRef(({ className, ...props }, ref) => (
 ));
 SheetOverlay.displayName = 'SheetOverlay';
 
-export const SheetContent = forwardRef(({ className, children, title, description, ...props }, ref) => (
+export const SheetContent = forwardRef(({ className, children, title, description, wide, ...props }, ref) => (
   <DialogPrimitive.Portal>
     <SheetOverlay />
     <DialogPrimitive.Content ref={ref}
-      className={cn('fixed right-0 top-0 z-50 h-full w-[640px] max-w-[96vw] bg-white shadow-2xl flex flex-col animate-sheet-in', className)}
+      className={cn(
+        'fixed right-0 top-0 z-50 h-full bg-white shadow-2xl flex flex-col animate-sheet-in',
+        wide ? 'w-[720px] max-w-[96vw]' : 'w-[640px] max-w-[96vw]',
+        className
+      )}
       aria-describedby={description ? 'sheet-desc' : undefined}
       {...props}
     >
@@ -150,7 +154,7 @@ export const SheetContent = forwardRef(({ className, children, title, descriptio
 SheetContent.displayName = 'SheetContent';
 
 export const SheetHeader = ({ className, ...props }) => (
-  <div className={cn('px-6 pt-5 pb-4 border-b border-slate-100 shrink-0', className)} {...props} />
+  <div className={cn('px-6 pt-6 pb-5 border-b border-slate-200 shrink-0', className)} {...props} />
 );
 export const SheetFooter = ({ className, ...props }) => (
   <div className={cn('px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-2 shrink-0', className)} {...props} />

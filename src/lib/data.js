@@ -280,6 +280,148 @@ export const MOCK_EXPENSES = [
   },
 ];
 
+// ── Revenus ────────────────────────────────────────────────────────────────────
+export const REVENUE_SOURCES = [
+  'Vente de produits', 'Prestation de services', 'Abonnement',
+  'Commission', 'Location', 'Autre',
+];
+
+export const REVENUE_STATUT_CFG = {
+  'Reçu':     { dot: 'bg-emerald-500', cls: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60' },
+  'Attendu':  { dot: 'bg-amber-500',   cls: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200/60' },
+  'Facturé':  { dot: 'bg-blue-500',    cls: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200/60' },
+};
+
+export const REVENUE_CUSTOMERS = [
+  'Atlas Tech Solutions', 'Horizon Import Export', 'MediCare Pharma',
+  'TechnoMaroc Innovations', 'BuildPro Construction', 'Green Maroc Agriculture',
+];
+
+export const PAYMENT_TERMS = [
+  'Net 15', 'Net 30', 'Net 45', 'Net 60', 'À réception',
+];
+
+export const MOCK_REVENUES = [
+  {
+    id: 'rev1', amount: 85000, date: '2026-06-12',
+    customer: 'Atlas Tech Solutions', source: 'Prestation de services',
+    description: 'Développement module comptabilité — phase 2',
+    paymentMethod: 'Virement bancaire', status: 'Reçu', referenceNumber: 'PO-ATS-2026-042',
+    tags: ['projet', 'recurrent'], createInvoice: true, invoiceNumber: 'FAC-2026-0142',
+    dueDate: '2026-07-12', paymentTerms: 'Net 30', notesToCustomer: '',
+    sendInvoiceImmediately: false, applyTax: true, addedThisMonth: true,
+  },
+  {
+    id: 'rev2', amount: 42000, date: '2026-06-08',
+    customer: 'MediCare Pharma', source: 'Vente de produits',
+    description: 'Fourniture équipements de bureau — lot Q2',
+    paymentMethod: 'Chèque', status: 'Facturé', referenceNumber: 'BC-MCP-0891',
+    tags: ['equipement'], createInvoice: true, invoiceNumber: 'FAC-2026-0138',
+    dueDate: '2026-07-08', paymentTerms: 'Net 30', notesToCustomer: 'Merci pour votre confiance.',
+    sendInvoiceImmediately: true, applyTax: true, addedThisMonth: true,
+  },
+  {
+    id: 'rev3', amount: 125000, date: '2026-06-15',
+    customer: 'Horizon Import Export', source: 'Commission',
+    description: 'Commission sur ventes export T2 2026',
+    paymentMethod: 'Virement bancaire', status: 'Attendu', referenceNumber: 'CTR-HIE-2026-T2',
+    tags: ['export', 'trimestriel'], createInvoice: true, invoiceNumber: 'FAC-2026-0145',
+    dueDate: '2026-07-15', paymentTerms: 'Net 45', notesToCustomer: '',
+    sendInvoiceImmediately: false, applyTax: false, addedThisMonth: true,
+  },
+  {
+    id: 'rev4', amount: 18000, date: '2026-05-28',
+    customer: 'TechnoMaroc Innovations', source: 'Abonnement',
+    description: 'Abonnement mensuel support technique',
+    paymentMethod: 'Prélèvement automatique', status: 'Reçu', referenceNumber: '',
+    tags: ['abonnement', 'mensuel'], createInvoice: false, invoiceNumber: '',
+    dueDate: '', paymentTerms: 'Net 15', notesToCustomer: '',
+    sendInvoiceImmediately: false, applyTax: true, addedThisMonth: false,
+  },
+  {
+    id: 'rev5', amount: 95000, date: '2026-05-20',
+    customer: 'BuildPro Construction', source: 'Prestation de services',
+    description: 'Audit comptable annuel 2025',
+    paymentMethod: 'Virement bancaire', status: 'Reçu', referenceNumber: 'AUD-BPC-2025',
+    tags: ['audit', 'annuel'], createInvoice: true, invoiceNumber: 'FAC-2026-0129',
+    dueDate: '2026-06-20', paymentTerms: 'Net 30', notesToCustomer: 'Paiement reçu — merci.',
+    sendInvoiceImmediately: true, applyTax: true, addedThisMonth: false,
+  },
+  {
+    id: 'rev6', amount: 6500, date: '2026-06-18',
+    customer: 'Green Maroc Agriculture', source: 'Location',
+    description: 'Location espace de stockage — juin 2026',
+    paymentMethod: 'Espèces', status: 'Attendu', referenceNumber: '',
+    tags: ['location'], createInvoice: false, invoiceNumber: '',
+    dueDate: '', paymentTerms: 'À réception', notesToCustomer: '',
+    sendInvoiceImmediately: false, applyTax: false, addedThisMonth: true,
+  },
+];
+
+// ── Factures ───────────────────────────────────────────────────────────────────
+export const INVOICE_STATUT_CFG = {
+  'Brouillon':  { dot: 'bg-slate-400',   cls: 'bg-slate-100 text-slate-600 ring-1 ring-slate-200/60' },
+  'Envoyée':    { dot: 'bg-blue-500',    cls: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200/60' },
+  'Payée':      { dot: 'bg-emerald-500', cls: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60' },
+  'En retard':  { dot: 'bg-rose-500',    cls: 'bg-rose-50 text-rose-700 ring-1 ring-rose-200/60' },
+};
+
+export const MOCK_INVOICES = [
+  {
+    id: 'inv1', invoiceNumber: 'FAC-2026-0142', invoiceDate: '2026-06-12', dueDate: '2026-07-12',
+    paymentTerms: 'Net 30', customer: 'Atlas Tech Solutions', referenceNumber: 'PO-ATS-2026-042',
+    status: 'Envoyée', applyTax: true, sendInvoiceImmediately: true,
+    notesToCustomer: 'Paiement par virement sous 30 jours.',
+    internalNotes: 'Relancer si non payé avant le 10/07.',
+    lineItems: [
+      { id: 'l1', description: 'Développement module comptabilité', quantity: 1, unitPrice: 70833.33 },
+    ],
+    addedThisMonth: true,
+  },
+  {
+    id: 'inv2', invoiceNumber: 'FAC-2026-0138', invoiceDate: '2026-06-08', dueDate: '2026-07-08',
+    paymentTerms: 'Net 30', customer: 'MediCare Pharma', referenceNumber: 'BC-MCP-0891',
+    status: 'Payée', applyTax: true, sendInvoiceImmediately: true,
+    notesToCustomer: 'Merci pour votre confiance.',
+    internalNotes: '',
+    lineItems: [
+      { id: 'l1', description: 'Équipements de bureau — lot Q2', quantity: 12, unitPrice: 3500 },
+    ],
+    addedThisMonth: true,
+  },
+  {
+    id: 'inv3', invoiceNumber: 'FAC-2026-0145', invoiceDate: '2026-06-15', dueDate: '2026-07-30',
+    paymentTerms: 'Net 45', customer: 'Horizon Import Export', referenceNumber: 'CTR-HIE-2026-T2',
+    status: 'Envoyée', applyTax: false, sendInvoiceImmediately: false,
+    notesToCustomer: '', internalNotes: 'Commission T2 — en attente validation.',
+    lineItems: [
+      { id: 'l1', description: 'Commission export T2 2026', quantity: 1, unitPrice: 125000 },
+    ],
+    addedThisMonth: true,
+  },
+  {
+    id: 'inv4', invoiceNumber: 'FAC-2026-0129', invoiceDate: '2026-05-20', dueDate: '2026-06-20',
+    paymentTerms: 'Net 30', customer: 'BuildPro Construction', referenceNumber: 'AUD-BPC-2025',
+    status: 'Payée', applyTax: true, sendInvoiceImmediately: true,
+    notesToCustomer: 'Audit comptable annuel 2025.',
+    internalNotes: 'Paiement reçu le 18/06.',
+    lineItems: [
+      { id: 'l1', description: 'Audit comptable annuel', quantity: 1, unitPrice: 79166.67 },
+    ],
+    addedThisMonth: false,
+  },
+  {
+    id: 'inv5', invoiceNumber: 'FAC-2026-0150', invoiceDate: '2026-06-18', dueDate: '2026-06-25',
+    paymentTerms: 'Net 15', customer: 'TechnoMaroc Innovations', referenceNumber: '',
+    status: 'En retard', applyTax: true, sendInvoiceImmediately: true,
+    notesToCustomer: '', internalNotes: 'Relance envoyée le 24/06.',
+    lineItems: [
+      { id: 'l1', description: 'Support technique — juin 2026', quantity: 1, unitPrice: 15000 },
+    ],
+    addedThisMonth: true,
+  },
+];
+
 // Calendar events for June 2026
 export const CALENDAR_EVENTS = [
   { date: 10, label: 'CNSS — Mai 2026',        societes: ['Atlas Tech Solutions', 'MediCare Pharma'], type: 'cnss',    statut: 'Soumis' },

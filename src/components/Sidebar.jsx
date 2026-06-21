@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   LayoutDashboard, Building2, FileText, Calendar,
-  FolderOpen, Settings, ChevronLeft, ChevronRight, LogOut, Receipt,
+  FolderOpen, Settings, ChevronLeft, ChevronRight, LogOut, Receipt, CircleDollarSign, ScrollText,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -12,6 +12,8 @@ const NAV_ITEMS = [
   { id: 'calendrier',   label: 'Calendrier fiscal', icon: Calendar },
   { id: 'documents',    label: 'Documents',         icon: FolderOpen },
   { id: 'depenses',     label: 'Dépenses',          icon: Receipt },
+  { id: 'revenus',      label: 'Revenus',           icon: CircleDollarSign },
+  { id: 'factures',     label: 'Factures',          icon: ScrollText },
 ];
 
 const BOTTOM_ITEMS = [

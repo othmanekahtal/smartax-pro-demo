@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Plus, Eye, Pencil, ChevronUp, ChevronDown, ChevronsUpDown,
-  Receipt, X, Upload, FileText, Tag,
+  Receipt, X, Upload, FileText,
 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { cn } from '../lib/utils';
@@ -9,48 +9,16 @@ import {
   MOCK_EXPENSES, EXPENSE_CATEGORIES, EXPENSE_STATUT_CFG, PAYMENT_METHODS,
 } from '../lib/data';
 import {
-  Button, Input, Textarea, Label, Separator, Badge, ScrollArea,
+  Button, Input, Textarea, Badge,
   Select, SelectValue, SelectTrigger, SelectContent, SelectItem,
-  Sheet, SheetClose, SheetContent, SheetHeader, SheetFooter,
-  Field, SectionHeader,
+  Sheet, SheetClose, SheetContent, SheetHeader, Field,
 } from '../components/ui';
-
-// ── TagInput ────────────────────────────────────────────────────────────────────
-function TagInput({ tags, onChange }) {
-  const [input, setInput] = useState('');
-  const add = () => {
-    const val = input.trim();
-    if (val && !tags.includes(val)) onChange([...tags, val]);
-    setInput('');
-  };
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex gap-2">
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } }}
-          placeholder="Taper et appuyer sur Entrée..."
-        />
-        <Button variant="outline" size="sm" type="button" onClick={add}>Ajouter</Button>
-      </div>
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {tags.map((tag) => (
-            <span key={tag}
-              className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200/60">
-              {tag}
-              <button type="button" onClick={() => onChange(tags.filter((t) => t !== tag))}
-                className="text-blue-400 hover:text-blue-700 cursor-pointer">
-                <X className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+import {
+  SheetFormHeader, SheetBody, SheetSection, SheetFooterBar, SheetDivider,
+  TagInput, fmtSheetAmt, fmtSheetDate,
+  SheetDetailBody, SheetDetailSection, SheetDetailGrid, SheetDetailField,
+  SheetDetailTags, SheetDetailNote,
+} from '../components/sheet-form';
 
 // ── ExpenseFormSheet ────────────────────────────────────────────────────────────
 function ExpenseFormSheet({ open, onOpenChange, onSave, initialData }) {
@@ -108,61 +76,49 @@ function ExpenseFormSheet({ open, onOpenChange, onSave, initialData }) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent title={isEdit ? 'Modifier la dépense' : 'Nouvelle dépense'} description="Formulaire dépense">
         <SheetHeader>
-          <div className="flex items-center gap-3 pr-8">
-            <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
-              <Receipt className="w-4 h-4 text-emerald-600" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900">
-                {isEdit ? 'Modifier la dépense' : 'Nouvelle dépense'}
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">Renseignez les informations de la dépense</p>
-            </div>
-          </div>
+          <SheetFormHeader
+            title={isEdit ? 'Modifier la dépense' : 'Nouvelle dépense'}
+            subtitle={isEdit ? 'Mettre à jour les informations de la dépense' : 'Enregistrer une nouvelle dépense'}
+          />
         </SheetHeader>
 
-        <ScrollArea className="flex-1">
-          <div className="px-6 py-5 space-y-8">
+        <SheetBody>
+          <SheetSection title="Informations générales">
+            <Field label="Titre" required>
+              <Input value={form.title} onChange={set('title')} placeholder="Ex: Achat de matières premières" />
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Montant (DH)" required>
+                <Input type="number" min={0} step="0.01" value={form.amount} onChange={set('amount')} placeholder="0.00" />
+              </Field>
+              <Field label="Date" required>
+                <Input type="date" value={form.date} onChange={set('date')} />
+              </Field>
+            </div>
+            <Field label="Fournisseur" required>
+              <Input value={form.vendor} onChange={set('vendor')} placeholder="Ex: Fournisseur SARL" />
+            </Field>
+            <Field label="Catégorie" required>
+              <Select value={form.category} onValueChange={setVal('category')}>
+                <SelectTrigger><SelectValue placeholder="Sélectionner une catégorie" /></SelectTrigger>
+                <SelectContent>
+                  {EXPENSE_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="Description">
+              <Textarea value={form.description} onChange={set('description')}
+                placeholder="Détails complémentaires sur la dépense" className="min-h-[80px]" />
+            </Field>
+          </SheetSection>
 
-            {/* ── Informations générales ── */}
-            <section className="space-y-4">
-              <SectionHeader>Informations générales</SectionHeader>
-              <Field label="Titre" required>
-                <Input value={form.title} onChange={set('title')} placeholder="Ex: Achat de feuilles d'argent" />
-              </Field>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Montant (DH)" required>
-                  <Input type="number" min={0} value={form.amount} onChange={set('amount')} placeholder="0" />
-                </Field>
-                <Field label="Date de la dépense" required>
-                  <Input type="date" value={form.date} onChange={set('date')} />
-                </Field>
-              </div>
-              <Field label="Fournisseur" required>
-                <Input value={form.vendor} onChange={set('vendor')} placeholder="Ex: Fournisseur SARL" />
-              </Field>
-              <Field label="Catégorie" required>
-                <Select value={form.category} onValueChange={setVal('category')}>
-                  <SelectTrigger><SelectValue placeholder="Sélectionner ou créer une catégorie" /></SelectTrigger>
-                  <SelectContent>
-                    {EXPENSE_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </Field>
-              <Field label="Description">
-                <Textarea value={form.description} onChange={set('description')}
-                  placeholder="Entrez les détails de la dépense" className="min-h-[100px]" />
-              </Field>
-            </section>
+          <SheetDivider />
 
-            <Separator />
-
-            {/* ── Détails ── */}
-            <section className="space-y-4">
-              <SectionHeader>Détails</SectionHeader>
+          <SheetSection title="Paiement et suivi">
+            <div className="grid grid-cols-2 gap-3">
               <Field label="Statut" required>
                 <Select value={form.status} onValueChange={setVal('status')}>
-                  <SelectTrigger><SelectValue placeholder="Sélectionner un statut" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Statut" /></SelectTrigger>
                   <SelectContent>
                     {Object.keys(EXPENSE_STATUT_CFG).map((s) => (
                       <SelectItem key={s} value={s}>{s}</SelectItem>
@@ -172,54 +128,48 @@ function ExpenseFormSheet({ open, onOpenChange, onSave, initialData }) {
               </Field>
               <Field label="Moyen de paiement" required>
                 <Select value={form.paymentMethod} onValueChange={setVal('paymentMethod')}>
-                  <SelectTrigger><SelectValue placeholder="Sélectionner le moyen de paiement" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Paiement" /></SelectTrigger>
                   <SelectContent>
                     {PAYMENT_METHODS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Reçu">
-                <label htmlFor="receipt-upload"
-                  className="flex flex-col items-center justify-center gap-2 h-28 w-full rounded-xl border-2 border-dashed border-slate-200 cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/30 transition-colors">
-                  {receiptName ? (
-                    <span className="flex items-center gap-2 text-sm font-medium text-emerald-600">
-                      <FileText className="w-4 h-4" />{receiptName}
-                    </span>
-                  ) : (
-                    <>
-                      <Upload className="w-5 h-5 text-slate-300" />
-                      <span className="text-sm font-medium text-slate-600">
-                        Déposer le reçu ici ou cliquer pour parcourir
-                      </span>
-                      <span className="text-xs text-slate-400">JPG, PNG ou PDF · Max 5MB</span>
-                    </>
-                  )}
-                  <input id="receipt-upload" type="file" accept=".jpg,.jpeg,.png,.pdf" className="hidden"
-                    onChange={(e) => setReceiptName(e.target.files?.[0]?.name || '')} />
-                </label>
-                <p className="text-xs text-slate-400 mt-1">
-                  Votre reçu est uploadé dès que vous choisissez un fichier. Il est lié lors de la sauvegarde.
-                </p>
-              </Field>
-              <Field label="Notes">
-                <Textarea value={form.notes} onChange={set('notes')} placeholder="Notes supplémentaires..." />
-              </Field>
-              <Field label="Tags">
-                <TagInput tags={tags} onChange={setTags} />
-              </Field>
-            </section>
+            </div>
+            <Field label="Reçu">
+              <label htmlFor="receipt-upload"
+                className="flex flex-col items-center justify-center gap-2 h-24 w-full rounded-lg border border-dashed border-slate-300 cursor-pointer hover:border-slate-400 hover:bg-slate-50 transition-colors">
+                {receiptName ? (
+                  <span className="flex items-center gap-2 text-sm text-slate-700">
+                    <FileText className="w-4 h-4" />{receiptName}
+                  </span>
+                ) : (
+                  <>
+                    <Upload className="w-5 h-5 text-slate-400" />
+                    <span className="text-sm text-slate-600">Déposer ou parcourir</span>
+                    <span className="text-xs text-slate-400">JPG, PNG ou PDF · Max 5 Mo</span>
+                  </>
+                )}
+                <input id="receipt-upload" type="file" accept=".jpg,.jpeg,.png,.pdf" className="hidden"
+                  onChange={(e) => setReceiptName(e.target.files?.[0]?.name || '')} />
+              </label>
+            </Field>
+            <Field label="Notes">
+              <Textarea value={form.notes} onChange={set('notes')} placeholder="Notes internes..." rows={2} />
+            </Field>
+            <Field label="Tags">
+              <TagInput tags={tags} onChange={setTags} />
+            </Field>
+          </SheetSection>
+        </SheetBody>
 
-          </div>
-        </ScrollArea>
-
-        <SheetFooter>
+        <SheetFooterBar summary={{ label: 'Montant', value: fmtSheetAmt(form.amount || 0) }}>
           <SheetClose asChild><Button variant="outline">Annuler</Button></SheetClose>
           <Button onClick={handleSave}>
             {isEdit
               ? <><Pencil className="w-4 h-4" /> Enregistrer</>
               : <><Plus className="w-4 h-4" /> Enregistrer la dépense</>}
           </Button>
-        </SheetFooter>
+        </SheetFooterBar>
       </SheetContent>
     </Sheet>
   );
@@ -228,111 +178,72 @@ function ExpenseFormSheet({ open, onOpenChange, onSave, initialData }) {
 // ── ExpenseDetailSheet ──────────────────────────────────────────────────────────
 function ExpenseDetailSheet({ expense, open, onOpenChange, onEdit }) {
   if (!expense) return null;
-  const s = EXPENSE_STATUT_CFG[expense.status] ?? EXPENSE_STATUT_CFG['En attente'];
-
-  const DR = ({ label, value, wide }) => (
-    <div className={cn('flex flex-col gap-0.5', wide && 'col-span-2')}>
-      <span className="text-xs text-slate-400">{label}</span>
-      <span className="text-sm text-slate-900 font-medium">{value || '—'}</span>
-    </div>
-  );
-
-  const fmtAmt = (v) =>
-    `${Number(v).toLocaleString('fr-MA', { minimumFractionDigits: 2 })} DH`;
-
-  const fmtDate = (d) => {
-    if (!d) return '—';
-    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
-      const [y, m, day] = d.split('-');
-      return `${day}/${m}/${y}`;
-    }
-    return d;
-  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent title={expense.title} description="Détails dépense">
         <SheetHeader>
-          <div className="flex items-start gap-3 pr-8">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shrink-0">
-              <Receipt className="w-5 h-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-base font-bold text-slate-900 truncate">{expense.title}</h2>
-              <p className="text-sm text-slate-500 mt-0.5">{expense.vendor}</p>
-              <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <span className={cn('inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium', s.cls)}>
-                  <span className={cn('w-1.5 h-1.5 rounded-full', s.dot)} />{expense.status}
-                </span>
-                <Badge variant="secondary">{expense.category}</Badge>
-              </div>
-            </div>
-          </div>
+          <SheetFormHeader
+            title={expense.title}
+            subtitle={`${expense.vendor} · ${expense.status} · ${expense.category}`}
+          />
         </SheetHeader>
 
-        <ScrollArea className="flex-1">
-          <div className="px-6 py-5 space-y-6">
+        <SheetDetailBody>
+          <SheetDetailSection title="Résumé">
+            <SheetDetailGrid>
+              <SheetDetailField label="Montant" value={fmtSheetAmt(expense.amount)} />
+              <SheetDetailField label="Date" value={fmtSheetDate(expense.date)} />
+            </SheetDetailGrid>
+          </SheetDetailSection>
 
-            <div>
-              <SectionHeader>Informations générales</SectionHeader>
-              <div className="grid grid-cols-2 gap-4">
-                <DR label="Montant" value={fmtAmt(expense.amount)} />
-                <DR label="Date" value={fmtDate(expense.date)} />
-                <DR label="Fournisseur" value={expense.vendor} />
-                <DR label="Catégorie" value={expense.category} />
-                {expense.description && (
-                  <DR label="Description" value={expense.description} wide />
-                )}
-              </div>
-            </div>
+          <SheetDivider />
 
-            <Separator />
+          <SheetDetailSection title="Informations générales">
+            <SheetDetailGrid>
+              <SheetDetailField label="Fournisseur" value={expense.vendor} />
+              <SheetDetailField label="Catégorie" value={expense.category} />
+              <SheetDetailField label="Description" value={expense.description} wide />
+            </SheetDetailGrid>
+          </SheetDetailSection>
 
-            <div>
-              <SectionHeader>Détails</SectionHeader>
-              <div className="grid grid-cols-2 gap-4">
-                <DR label="Moyen de paiement" value={expense.paymentMethod} />
-                <DR label="Statut" value={expense.status} />
-                {expense.receiptName ? (
-                  <div className="col-span-2 flex flex-col gap-0.5">
-                    <span className="text-xs text-slate-400">Reçu</span>
-                    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700">
-                      <FileText className="w-3.5 h-3.5" />{expense.receiptName}
-                    </span>
+          <SheetDivider />
+
+          <SheetDetailSection title="Paiement">
+            <SheetDetailGrid>
+              <SheetDetailField label="Statut" value={expense.status} />
+              <SheetDetailField label="Moyen de paiement" value={expense.paymentMethod} />
+              <SheetDetailField
+                label="Reçu"
+                value={expense.receiptName || 'Aucun reçu joint'}
+                wide
+                mono={!!expense.receiptName}
+              />
+            </SheetDetailGrid>
+          </SheetDetailSection>
+
+          {(expense.notes || expense.tags?.length > 0) && (
+            <>
+              <SheetDivider />
+              <SheetDetailSection title="Suivi">
+                {expense.tags?.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-slate-500">Tags</p>
+                    <SheetDetailTags tags={expense.tags} />
                   </div>
-                ) : (
-                  <DR label="Reçu" value="Aucun reçu joint" wide />
                 )}
-                {expense.notes && <DR label="Notes" value={expense.notes} wide />}
-              </div>
-            </div>
+                <SheetDetailNote label="Notes" value={expense.notes} />
+              </SheetDetailSection>
+            </>
+          )}
+        </SheetDetailBody>
 
-            {expense.tags?.length > 0 && (
-              <>
-                <Separator />
-                <div>
-                  <SectionHeader>Tags</SectionHeader>
-                  <div className="flex flex-wrap gap-1.5">
-                    {expense.tags.map((tag) => (
-                      <span key={tag}
-                        className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200/60">
-                        <Tag className="w-3 h-3" />{tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-
-          </div>
-        </ScrollArea>
-
-        <SheetFooter>
+        <SheetFooterBar summary={{ label: 'Montant', value: fmtSheetAmt(expense.amount) }}>
           <SheetClose asChild><Button variant="outline">Fermer</Button></SheetClose>
           <Button onClick={() => { onOpenChange(false); onEdit(expense); }}>
             <Pencil className="w-4 h-4" />Modifier
           </Button>
-        </SheetFooter>
+        </SheetFooterBar>
       </SheetContent>
     </Sheet>
   );
