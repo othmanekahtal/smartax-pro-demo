@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { cn } from '../lib/utils';
+import { getMockRevenueDetail } from '../lib/mock-revenue-api';
 import {
   MOCK_REVENUES, REVENUE_SOURCES, REVENUE_STATUT_CFG, REVENUE_CUSTOMERS,
   PAYMENT_METHODS, PAYMENT_TERMS,
@@ -17,9 +18,9 @@ import {
 } from '../components/ui';
 import {
   SheetFormHeader, SheetBody, SheetSection, SheetFooterBar, SheetDivider,
-  SheetOptionCard, SheetCheckbox, TagInput, fmtSheetAmt, fmtSheetDate, fmtSheetBool,
+  SheetOptionCard, SheetCheckbox, TagInput, fmtSheetAmt, fmtSheetDate,
   SheetDetailBody, SheetDetailSection, SheetDetailGrid, SheetDetailField,
-  SheetDetailTags, SheetDetailNote,
+  SheetDetailTags, SheetCustomerNote, fmtSheetDateTime,
 } from '../components/sheet-form';
 
 // ── RevenueFormSheet ────────────────────────────────────────────────────────────
@@ -212,24 +213,26 @@ function RevenueFormSheet({ open, onOpenChange, onSave, initialData }) {
 }
 
 // ── RevenueDetailSheet ──────────────────────────────────────────────────────────
-function RevenueDetailSheet({ revenue, open, onOpenChange, onEdit }) {
-  if (!revenue) return null;
+function RevenueDetailSheet({ detail, open, onOpenChange, onEdit }) {
+  if (!detail) return null;
+  const taxLabel = detail.tax ? `${detail.tax.name} (${detail.tax.rate} %)` : '—';
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent title={revenue.customer} description="Détails revenu">
+      <SheetContent title={detail.customer} description="Détails revenu">
         <SheetHeader>
           <SheetFormHeader
-            title={revenue.customer}
-            subtitle={`${revenue.source} · ${revenue.status} · ${fmtSheetAmt(revenue.amount)}`}
+            title={detail.customer}
+            subtitle={`${detail.source} · ${detail.status} · ${fmtSheetAmt(detail.amount)}`}
           />
         </SheetHeader>
 
         <SheetDetailBody>
           <SheetDetailSection title="Résumé">
             <SheetDetailGrid>
-              <SheetDetailField label="Montant" value={fmtSheetAmt(revenue.amount)} />
-              <SheetDetailField label="Date" value={fmtSheetDate(revenue.date)} />
+              <SheetDetailField label="Montant" value={fmtSheetAmt(detail.amount)} />
+              <SheetDetailField label="Date du revenu" value={fmtSheetDate(detail.revenue_date)} />
+              <SheetDetailField label="Créé le" value={fmtSheetDateTime(detail.created_at)} wide />
             </SheetDetailGrid>
           </SheetDetailSection>
 
@@ -237,9 +240,9 @@ function RevenueDetailSheet({ revenue, open, onOpenChange, onEdit }) {
 
           <SheetDetailSection title="Informations générales">
             <SheetDetailGrid>
-              <SheetDetailField label="Client" value={revenue.customer} />
-              <SheetDetailField label="Source" value={revenue.source} />
-              <SheetDetailField label="Description" value={revenue.description} wide />
+              <SheetDetailField label="Client" value={detail.customer} />
+              <SheetDetailField label="Source" value={detail.source} />
+              <SheetDetailField label="Description" value={detail.description} wide />
             </SheetDetailGrid>
           </SheetDetailSection>
 
@@ -247,41 +250,45 @@ function RevenueDetailSheet({ revenue, open, onOpenChange, onEdit }) {
 
           <SheetDetailSection title="Paiement">
             <SheetDetailGrid>
-              <SheetDetailField label="Statut" value={revenue.status} />
-              <SheetDetailField label="Moyen de paiement" value={revenue.paymentMethod} />
-              <SheetDetailField label="Référence" value={revenue.referenceNumber} wide mono={!!revenue.referenceNumber} />
+              <SheetDetailField label="Statut" value={detail.status} />
+              <SheetDetailField label="Moyen de paiement" value={detail.payment_method} />
+              <SheetDetailField
+                label="Référence"
+                value={detail.reference_number}
+                wide
+                mono={!!detail.reference_number}
+              />
             </SheetDetailGrid>
           </SheetDetailSection>
 
-          {revenue.createInvoice && (
+          {detail.create_invoice && (
             <>
               <SheetDivider />
               <SheetDetailSection title="Facturation">
                 <SheetDetailGrid>
-                  <SheetDetailField label="N° facture" value={revenue.invoiceNumber} mono />
-                  <SheetDetailField label="Date d'échéance" value={fmtSheetDate(revenue.dueDate)} />
-                  <SheetDetailField label="Conditions de paiement" value={revenue.paymentTerms} />
-                  <SheetDetailField label="TVA appliquée" value={fmtSheetBool(revenue.applyTax)} />
-                  <SheetDetailField label="Envoi immédiat" value={fmtSheetBool(revenue.sendInvoiceImmediately)} />
+                  <SheetDetailField label="N° facture" value={detail.invoice_number} mono />
+                  <SheetDetailField label="Date d'échéance" value={fmtSheetDate(detail.due_date)} />
+                  <SheetDetailField label="Conditions de paiement" value={detail.payment_term} />
+                  <SheetDetailField label="Taxe" value={taxLabel} />
                 </SheetDetailGrid>
-                <SheetDetailNote label="Notes au client" value={revenue.notesToCustomer} />
+                <SheetCustomerNote value={detail.customer_note} />
               </SheetDetailSection>
             </>
           )}
 
-          {revenue.tags?.length > 0 && (
+          {detail.tags?.length > 0 && (
             <>
               <SheetDivider />
               <SheetDetailSection title="Tags">
-                <SheetDetailTags tags={revenue.tags} />
+                <SheetDetailTags tags={detail.tags} />
               </SheetDetailSection>
             </>
           )}
         </SheetDetailBody>
 
-        <SheetFooterBar summary={{ label: 'Montant', value: fmtSheetAmt(revenue.amount) }}>
+        <SheetFooterBar summary={{ label: 'Montant', value: fmtSheetAmt(detail.amount) }}>
           <SheetClose asChild><Button variant="outline">Fermer</Button></SheetClose>
-          <Button onClick={() => { onOpenChange(false); onEdit(revenue); }}>
+          <Button onClick={onEdit}>
             <Pencil className="w-4 h-4" />Modifier
           </Button>
         </SheetFooterBar>
@@ -298,8 +305,19 @@ export default function Revenus({ search }) {
   const [sortKey, setSortKey]             = useState(null);
   const [sortDir, setSortDir]             = useState('asc');
   const [formOpen, setFormOpen]           = useState(false);
-  const [detailRevenue, setDetailRevenue] = useState(null);
+  const [detailRow, setDetailRow]         = useState(null);
+  const [detailApi, setDetailApi]         = useState(null);
   const [editRevenue, setEditRevenue]     = useState(null);
+
+  const openDetail = (row) => {
+    setDetailRow(row);
+    setDetailApi(getMockRevenueDetail(row));
+  };
+
+  const closeDetail = () => {
+    setDetailRow(null);
+    setDetailApi(null);
+  };
 
   const handleSort = (key) => {
     if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
@@ -347,7 +365,7 @@ export default function Revenus({ search }) {
   };
 
   const openEdit = (revenue) => {
-    setDetailRevenue(null);
+    closeDetail();
     setEditRevenue(revenue);
     setFormOpen(true);
   };
@@ -451,7 +469,7 @@ export default function Revenus({ search }) {
                 ) : filtered.map((r) => {
                   const st = REVENUE_STATUT_CFG[r.status] ?? REVENUE_STATUT_CFG['Attendu'];
                   return (
-                    <tr key={r.id} onClick={() => setDetailRevenue(r)}
+                    <tr key={r.id} onClick={() => openDetail(r)}
                       className="hover:bg-slate-50/70 cursor-pointer transition-colors">
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
@@ -477,7 +495,7 @@ export default function Revenus({ search }) {
                       <td className="px-4 py-3.5">
                         <div className="flex items-center justify-end gap-1">
                           <Button variant="ghost" size="icon"
-                            onClick={(ev) => { ev.stopPropagation(); setDetailRevenue(r); }}
+                            onClick={(ev) => { ev.stopPropagation(); openDetail(r); }}
                             title="Voir">
                             <Eye className="w-4 h-4" />
                           </Button>
@@ -505,10 +523,10 @@ export default function Revenus({ search }) {
       </div>
 
       <RevenueDetailSheet
-        revenue={detailRevenue}
-        open={!!detailRevenue}
-        onOpenChange={(o) => { if (!o) setDetailRevenue(null); }}
-        onEdit={openEdit}
+        detail={detailApi}
+        open={!!detailApi}
+        onOpenChange={(o) => { if (!o) closeDetail(); }}
+        onEdit={() => openEdit(detailRow)}
       />
       <RevenueFormSheet
         open={formOpen}

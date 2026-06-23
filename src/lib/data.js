@@ -303,7 +303,7 @@ export const PAYMENT_TERMS = [
 
 export const MOCK_REVENUES = [
   {
-    id: 'rev1', amount: 85000, date: '2026-06-12',
+    id: 'rev1', uuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', amount: 85000, date: '2026-06-12',
     customer: 'Atlas Tech Solutions', source: 'Prestation de services',
     description: 'Développement module comptabilité — phase 2',
     paymentMethod: 'Virement bancaire', status: 'Reçu', referenceNumber: 'PO-ATS-2026-042',
@@ -312,13 +312,22 @@ export const MOCK_REVENUES = [
     sendInvoiceImmediately: false, applyTax: true, addedThisMonth: true,
   },
   {
-    id: 'rev2', amount: 42000, date: '2026-06-08',
+    id: 'rev2', uuid: 'b2c3d4e5-f6a7-8901-bcde-f12345678901', amount: 42000, date: '2026-06-08',
     customer: 'MediCare Pharma', source: 'Vente de produits',
     description: 'Fourniture équipements de bureau — lot Q2',
     paymentMethod: 'Chèque', status: 'Facturé', referenceNumber: 'BC-MCP-0891',
     tags: ['equipement'], createInvoice: true, invoiceNumber: 'FAC-2026-0138',
     dueDate: '2026-07-08', paymentTerms: 'Net 30', notesToCustomer: 'Merci pour votre confiance.',
     sendInvoiceImmediately: true, applyTax: true, addedThisMonth: true,
+  },
+  {
+    id: 'rev-demo', uuid: '658b137e-df74-4cb3-9baf-01c866946c80', amount: 1000, date: '2026-06-23',
+    customer: 'test customer', source: 'sool',
+    description: 'This is test description',
+    paymentMethod: 'Chèque', status: 'Reçu', referenceNumber: '1-000-1-000',
+    tags: ['hello world'], createInvoice: true, invoiceNumber: 'INV-0005',
+    dueDate: '2026-06-01', paymentTerms: 'Net 30', notesToCustomer: 'NOTE FOR CUSTOMER',
+    sendInvoiceImmediately: false, applyTax: true, addedThisMonth: true,
   },
   {
     id: 'rev3', amount: 125000, date: '2026-06-15',

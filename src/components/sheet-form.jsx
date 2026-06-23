@@ -15,6 +15,16 @@ export const fmtSheetDate = (d) => {
   return d;
 };
 
+export const fmtSheetDateTime = (iso) => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString('fr-MA', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+};
+
 export const fmtSheetBool = (v) => (v ? 'Oui' : 'Non');
 
 // ── SheetFormHeader ─────────────────────────────────────────────────────────────
@@ -286,11 +296,30 @@ export function SheetDetailTags({ tags }) {
   if (!tags?.length) return null;
   return (
     <div className="flex flex-wrap gap-1.5">
-      {tags.map((tag) => (
-        <span key={tag} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-          {tag}
-        </span>
-      ))}
+      {tags.map((tag) => {
+        const name = typeof tag === 'string' ? tag : tag.name;
+        const key = typeof tag === 'string' ? tag : tag.uuid;
+        const color = typeof tag === 'object' ? tag.color : null;
+        return (
+          <span key={key}
+            className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+            {color && (
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+            )}
+            {name}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+export function SheetCustomerNote({ label = 'Notes client', value }) {
+  if (!value) return null;
+  return (
+    <div className="rounded-lg bg-slate-50 p-3">
+      <p className="text-xs text-slate-400 mb-1">{label}</p>
+      <p className="text-sm text-slate-700 whitespace-pre-wrap">{value}</p>
     </div>
   );
 }
