@@ -324,6 +324,21 @@ export function SheetCustomerNote({ label = 'Notes client', value }) {
   );
 }
 
+export function SheetInternalNote({ label = 'Notes internes', value }) {
+  if (!value) return null;
+  return (
+    <div className="border-l-2 border-slate-300 pl-3">
+      <p className="text-xs text-slate-500 mb-1">{label}</p>
+      <p className="text-sm text-slate-700 whitespace-pre-wrap">{value}</p>
+    </div>
+  );
+}
+
+export const fmtSheetCurrency = (amount, currency = 'MAD') => {
+  const formatted = Number(amount || 0).toLocaleString('fr-MA', { minimumFractionDigits: 2 });
+  return `${formatted} ${currency}`;
+};
+
 export function SheetDetailNote({ label, value }) {
   if (!value) return null;
   return (

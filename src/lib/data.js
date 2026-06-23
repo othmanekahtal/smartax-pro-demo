@@ -377,7 +377,20 @@ export const INVOICE_STATUT_CFG = {
 
 export const MOCK_INVOICES = [
   {
-    id: 'inv1', invoiceNumber: 'FAC-2026-0142', invoiceDate: '2026-06-12', dueDate: '2026-07-12',
+    id: 'inv-demo', uuid: '15dfd6a5-b60e-4e79-ad5f-9a7775988786',
+    invoiceNumber: 'INV-0005', invoiceDate: '2026-06-23', dueDate: '2026-06-01',
+    paymentTerms: 'Net 30', customer: 'test customer', referenceNumber: '1-000-1-000',
+    status: 'En retard', applyTax: true, sendInvoiceImmediately: false,
+    notesToCustomer: 'NOTE FOR CUSTOMER',
+    internalNotes: 'Generated from Revenue entry: This is test description',
+    lineItems: [
+      { id: 'l-demo', description: 'This is test description', quantity: 1, unitPrice: 1000 },
+    ],
+    addedThisMonth: true,
+  },
+  {
+    id: 'inv1', uuid: 'a15dfd6a5-b60e-4e79-ad5f-9a7775988786',
+    invoiceNumber: 'FAC-2026-0142', invoiceDate: '2026-06-12', dueDate: '2026-07-12',
     paymentTerms: 'Net 30', customer: 'Atlas Tech Solutions', referenceNumber: 'PO-ATS-2026-042',
     status: 'Envoyée', applyTax: true, sendInvoiceImmediately: true,
     notesToCustomer: 'Paiement par virement sous 30 jours.',

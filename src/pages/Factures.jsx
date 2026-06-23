@@ -5,18 +5,21 @@ import {
 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { cn } from '../lib/utils';
+import { getMockInvoiceDetail } from '../lib/mock-invoice-api';
 import {
   MOCK_INVOICES, INVOICE_STATUT_CFG, REVENUE_CUSTOMERS, PAYMENT_TERMS,
 } from '../lib/data';
 import {
-  Button, Input, Textarea, Badge, ScrollArea,
+  Button, Input, Textarea,
   Select, SelectValue, SelectTrigger, SelectContent, SelectItem,
   Sheet, SheetClose, SheetContent, SheetHeader, Separator, Field,
 } from '../components/ui';
 import {
   SheetFormHeader, SheetBody, SheetSection, SheetFooterBar, SheetDivider,
   SheetSwitch, SheetCheckbox, LineItemsEditor, calcLineItemsTotal,
-  fmtSheetAmt,
+  fmtSheetAmt, fmtSheetDate, fmtSheetCurrency,
+  SheetDetailBody, SheetDetailSection, SheetDetailGrid, SheetDetailField,
+  SheetCustomerNote, SheetInternalNote,
 } from '../components/sheet-form';
 
 const emptyLine = () => ({ id: String(Date.now() + Math.random()), description: '', quantity: 1, unitPrice: '' });
@@ -189,91 +192,108 @@ function InvoiceFormSheet({ open, onOpenChange, onSave, initialData }) {
 }
 
 // ── InvoiceDetailSheet ──────────────────────────────────────────────────────────
-function InvoiceDetailSheet({ invoice, open, onOpenChange, onEdit }) {
-  if (!invoice) return null;
-  const total = invoiceTotal(invoice);
-
-  const fmtDate = (d) => {
-    if (!d) return '—';
-    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
-      const [y, m, day] = d.split('-');
-      return `${day}/${m}/${y}`;
-    }
-    return d;
-  };
+function InvoiceDetailSheet({ detail, open, onOpenChange, onEdit }) {
+  if (!detail) return null;
+  const taxLabel = detail.tax ? `${detail.tax.name} (${detail.tax.rate} %)` : '—';
+  const money = (v) => fmtSheetCurrency(v, detail.currency);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent title={invoice.invoiceNumber} description="Détails facture">
+      <SheetContent wide title={detail.invoice_number} description="Détails facture">
         <SheetHeader>
           <SheetFormHeader
-            title={invoice.invoiceNumber}
-            subtitle={`${invoice.customer} · ${invoice.status}`}
+            title={detail.invoice_number}
+            subtitle={`${detail.customer} · ${detail.status}`}
           />
         </SheetHeader>
 
-        <ScrollArea className="flex-1">
-          <div className="px-6 py-6 space-y-6">
-            <div className="grid grid-cols-2 gap-4 text-sm border-b border-slate-200 pb-6">
-              <div><p className="text-xs text-slate-500">Date</p><p className="mt-0.5">{fmtDate(invoice.invoiceDate)}</p></div>
-              <div><p className="text-xs text-slate-500">Échéance</p><p className="mt-0.5">{fmtDate(invoice.dueDate)}</p></div>
-              <div><p className="text-xs text-slate-500">Conditions</p><p className="mt-0.5">{invoice.paymentTerms}</p></div>
-              <div><p className="text-xs text-slate-500">Référence</p><p className="mt-0.5">{invoice.referenceNumber || '—'}</p></div>
-            </div>
+        <SheetDetailBody>
+          <SheetDetailSection title="Résumé">
+            <SheetDetailGrid>
+              <SheetDetailField label="Client" value={detail.customer} />
+              <SheetDetailField label="Statut" value={detail.status} />
+              <SheetDetailField label="Date d'émission" value={fmtSheetDate(detail.issue_date)} />
+              <SheetDetailField label="Date d'échéance" value={fmtSheetDate(detail.due_date)} />
+              <SheetDetailField label="Conditions de paiement" value={detail.payment_terms} />
+              <SheetDetailField label="Référence" value={detail.reference_number} mono={!!detail.reference_number} />
+              <SheetDetailField label="Devise" value={detail.currency} />
+            </SheetDetailGrid>
+          </SheetDetailSection>
 
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 mb-3">Lignes</p>
-              <div className="border border-slate-200 overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-50 text-xs text-slate-400 uppercase">
-                    <tr>
-                      <th className="px-4 py-2 text-left">Description</th>
-                      <th className="px-4 py-2 text-right">Qté</th>
-                      <th className="px-4 py-2 text-right">P.U.</th>
-                      <th className="px-4 py-2 text-right">Montant</th>
+          <SheetDivider />
+
+          <SheetDetailSection title="Lignes">
+            <div className="border border-slate-200 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 text-xs text-slate-500">
+                  <tr>
+                    <th className="px-4 py-2 text-left font-medium">Description</th>
+                    <th className="px-4 py-2 text-right font-medium">Qté</th>
+                    <th className="px-4 py-2 text-right font-medium">P.U.</th>
+                    <th className="px-4 py-2 text-right font-medium">Montant</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {(detail.items || []).map((item) => (
+                    <tr key={item.uuid}>
+                      <td className="px-4 py-2.5 text-slate-900">{item.description}</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums text-slate-700">
+                        {Number(item.quantity).toLocaleString('fr-MA')}
+                      </td>
+                      <td className="px-4 py-2.5 text-right tabular-nums text-slate-700">
+                        {money(item.unitPrice)}
+                      </td>
+                      <td className="px-4 py-2.5 text-right tabular-nums text-slate-900">
+                        {money(item.amount)}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {(invoice.lineItems || []).map((l) => (
-                      <tr key={l.id}>
-                        <td className="px-4 py-2.5">{l.description}</td>
-                        <td className="px-4 py-2.5 text-right tabular-nums">{l.quantity}</td>
-                        <td className="px-4 py-2.5 text-right tabular-nums">{fmtSheetAmt(l.unitPrice)}</td>
-                        <td className="px-4 py-2.5 text-right font-medium tabular-nums">
-                          {fmtSheetAmt((Number(l.quantity) || 0) * (Number(l.unitPrice) || 0))}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div className="px-4 py-3 border-t border-slate-200 flex justify-end">
-                  <span className="text-sm font-semibold tabular-nums">Total : {fmtSheetAmt(total)}</span>
-                </div>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
+          </SheetDetailSection>
 
-            {(invoice.notesToCustomer || invoice.internalNotes) && (
-              <div className="space-y-3 text-sm">
-                {invoice.notesToCustomer && (
-                  <div className="rounded-lg bg-slate-50 p-3">
-                    <p className="text-xs text-slate-400 mb-1">Notes client</p>
-                    <p className="text-slate-700">{invoice.notesToCustomer}</p>
-                  </div>
-                )}
-                {invoice.internalNotes && (
-                  <div className="border-l-2 border-slate-300 pl-3">
-                    <p className="text-xs text-slate-500 mb-1">Notes internes</p>
-                    <p className="text-slate-700">{invoice.internalNotes}</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </ScrollArea>
+          <SheetDivider />
 
-        <SheetFooterBar summary={{ label: 'Total', value: fmtSheetAmt(total) }}>
+          <SheetDetailSection title="Totaux">
+            <SheetDetailGrid>
+              <SheetDetailField label="Sous-total" value={money(detail.subtotal)} />
+              <SheetDetailField label="Taxe" value={taxLabel} />
+              <SheetDetailField label="Montant TVA" value={money(detail.tax_amount)} />
+              <SheetDetailField label="Total" value={money(detail.total_amount)} />
+              <SheetDetailField label="Solde dû" value={money(detail.balance)} wide />
+            </SheetDetailGrid>
+          </SheetDetailSection>
+
+          {(detail.payment_method || detail.payment_reference || detail.payment_instructions) && (
+            <>
+              <SheetDivider />
+              <SheetDetailSection title="Paiement">
+                <SheetDetailGrid>
+                  <SheetDetailField label="Moyen de paiement" value={detail.payment_method} />
+                  <SheetDetailField label="Référence de paiement" value={detail.payment_reference} />
+                  <SheetDetailField label="Instructions" value={detail.payment_instructions} wide />
+                </SheetDetailGrid>
+              </SheetDetailSection>
+            </>
+          )}
+
+          {(detail.customer_note || detail.internal_notes) && (
+            <>
+              <SheetDivider />
+              <SheetDetailSection title="Notes">
+                <div className="space-y-3">
+                  <SheetCustomerNote value={detail.customer_note} />
+                  <SheetInternalNote value={detail.internal_notes} />
+                </div>
+              </SheetDetailSection>
+            </>
+          )}
+        </SheetDetailBody>
+
+        <SheetFooterBar summary={{ label: 'Solde dû', value: money(detail.balance) }}>
           <SheetClose asChild><Button variant="outline">Fermer</Button></SheetClose>
-          <Button onClick={() => { onOpenChange(false); onEdit(invoice); }}>
+          <Button onClick={onEdit}>
             <Pencil className="w-4 h-4" />Modifier
           </Button>
         </SheetFooterBar>
@@ -289,8 +309,19 @@ export default function Factures({ search }) {
   const [sortKey, setSortKey]         = useState(null);
   const [sortDir, setSortDir]         = useState('asc');
   const [formOpen, setFormOpen]       = useState(false);
-  const [detailInvoice, setDetailInvoice] = useState(null);
+  const [detailRow, setDetailRow]     = useState(null);
+  const [detailApi, setDetailApi]     = useState(null);
   const [editInvoice, setEditInvoice] = useState(null);
+
+  const openDetail = (row) => {
+    setDetailRow(row);
+    setDetailApi(getMockInvoiceDetail(row));
+  };
+
+  const closeDetail = () => {
+    setDetailRow(null);
+    setDetailApi(null);
+  };
 
   const handleSort = (key) => {
     if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
@@ -332,19 +363,12 @@ export default function Factures({ search }) {
   };
 
   const openEdit = (invoice) => {
-    setDetailInvoice(null);
+    closeDetail();
     setEditInvoice(invoice);
     setFormOpen(true);
   };
 
-  const fmtDate = (d) => {
-    if (!d) return '—';
-    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
-      const [y, m, day] = d.split('-');
-      return `${day}/${m}/${y}`;
-    }
-    return d;
-  };
+  const fmtDate = (d) => fmtSheetDate(d);
 
   const Th = ({ col, children, className }) => (
     <th
@@ -412,7 +436,7 @@ export default function Factures({ search }) {
                 ) : filtered.map((inv) => {
                   const st = INVOICE_STATUT_CFG[inv.status] ?? INVOICE_STATUT_CFG['Brouillon'];
                   return (
-                    <tr key={inv.id} onClick={() => setDetailInvoice(inv)}
+                    <tr key={inv.id} onClick={() => openDetail(inv)}
                       className="hover:bg-slate-50/70 cursor-pointer transition-colors">
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
@@ -436,7 +460,7 @@ export default function Factures({ search }) {
                       <td className="px-4 py-3.5">
                         <div className="flex items-center justify-end gap-1">
                           <Button variant="ghost" size="icon"
-                            onClick={(ev) => { ev.stopPropagation(); setDetailInvoice(inv); }} title="Voir">
+                            onClick={(ev) => { ev.stopPropagation(); openDetail(inv); }} title="Voir">
                             <Eye className="w-4 h-4" />
                           </Button>
                           <Button variant="ghost" size="icon"
@@ -459,10 +483,10 @@ export default function Factures({ search }) {
       </div>
 
       <InvoiceDetailSheet
-        invoice={detailInvoice}
-        open={!!detailInvoice}
-        onOpenChange={(o) => { if (!o) setDetailInvoice(null); }}
-        onEdit={openEdit}
+        detail={detailApi}
+        open={!!detailApi}
+        onOpenChange={(o) => { if (!o) closeDetail(); }}
+        onEdit={() => openEdit(detailRow)}
       />
       <InvoiceFormSheet
         open={formOpen}
