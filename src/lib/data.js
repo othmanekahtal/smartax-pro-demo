@@ -444,6 +444,96 @@ export const MOCK_INVOICES = [
   },
 ];
 
+// ── Clients ────────────────────────────────────────────────────────────────────
+export const CUSTOMER_TYPES = ['Entreprise', 'Individuel'];
+
+export const CUSTOMER_STATUS_CFG = {
+  'Actif':   { dot: 'bg-emerald-500', cls: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60' },
+  'Inactif': { dot: 'bg-slate-400',   cls: 'bg-slate-100 text-slate-500 ring-1 ring-slate-200/60' },
+};
+
+export const COUNTRIES = [
+  'Maroc', 'France', 'Espagne', 'Italie', 'Allemagne', 'Belgique',
+  'Pays-Bas', 'Suisse', 'Portugal', 'Royaume-Uni', 'États-Unis',
+  'Canada', 'Tunisie', 'Algérie', 'Sénégal', 'Côte d\'Ivoire',
+  'Égypte', 'Turquie', 'Émirats arabes unis', 'Arabie saoudite',
+];
+
+export const MOCK_CUSTOMERS = [
+  {
+    id: 'cust1', name: 'Atlas Tech Solutions', type: 'Entreprise', status: 'Actif',
+    tags: ['tech', 'recurrent'],
+    firstName: 'Karim', lastName: 'Benali', email: 'k.benali@atlastech.ma',
+    website: 'https://atlastech.ma', phone: '+212600123456',
+    notes: 'Client principal — développement logiciel',
+    billingAddress: '45 Boulevard Zerktouni, Casablanca 20100', country: 'Maroc',
+    taxId: 'IF-12345678', paymentMethod: 'Virement bancaire', addedThisMonth: false,
+  },
+  {
+    id: 'cust2', name: 'Horizon Import Export', type: 'Entreprise', status: 'Actif',
+    tags: ['export', 'trimestriel'],
+    firstName: 'Fatima Zahra', lastName: 'Idrissi', email: 'fz.idrissi@horizon-ie.ma',
+    website: 'https://horizon-ie.ma', phone: '+212661987654',
+    notes: '',
+    billingAddress: '12 Avenue Hassan II, Rabat 10000', country: 'Maroc',
+    taxId: 'IF-23456789', paymentMethod: 'Chèque', addedThisMonth: false,
+  },
+  {
+    id: 'cust3', name: 'MediCare Pharma', type: 'Entreprise', status: 'Actif',
+    tags: ['pharma'],
+    firstName: 'Nadia', lastName: 'Cherkaoui', email: 'n.cherkaoui@medicare.ma',
+    website: '', phone: '+212522456789',
+    notes: 'Commandes trimestrielles régulières',
+    billingAddress: '56 Avenue Moulay Youssef, Casablanca 20000', country: 'Maroc',
+    taxId: 'IF-56789012', paymentMethod: 'Virement bancaire', addedThisMonth: false,
+  },
+  {
+    id: 'cust4', name: 'TechnoMaroc Innovations', type: 'Entreprise', status: 'Actif',
+    tags: ['conseil', 'mensuel'],
+    firstName: 'Amine', lastName: 'Tahiri', email: 'a.tahiri@technomaroc.ma',
+    website: 'https://technomaroc.ma', phone: '+212537654321',
+    notes: 'Abonnement mensuel support technique',
+    billingAddress: '7 Rue Al Moukaouama, Rabat 10100', country: 'Maroc',
+    taxId: 'IF-67890123', paymentMethod: 'Prélèvement automatique', addedThisMonth: false,
+  },
+  {
+    id: 'cust5', name: 'BuildPro Construction', type: 'Entreprise', status: 'Actif',
+    tags: ['btp', 'annuel'],
+    firstName: 'Rachid', lastName: 'Ouazzani', email: 'r.ouazzani@buildpro.ma',
+    website: '', phone: '+212522789012',
+    notes: 'Audit comptable annuel',
+    billingAddress: '23 Rue Ibn Battouta, Casablanca 20300', country: 'Maroc',
+    taxId: 'IF-45678901', paymentMethod: 'Virement bancaire', addedThisMonth: false,
+  },
+  {
+    id: 'cust6', name: 'Sophie Martin', type: 'Individuel', status: 'Actif',
+    tags: ['freelance'],
+    firstName: 'Sophie', lastName: 'Martin', email: 'sophie.martin@gmail.com',
+    website: '', phone: '+33612345678',
+    notes: 'Consultante indépendante',
+    billingAddress: '12 Rue de la Paix, Paris 75002', country: 'France',
+    taxId: '', paymentMethod: 'Carte bancaire', addedThisMonth: false,
+  },
+  {
+    id: 'cust7', name: 'Green Maroc Agriculture', type: 'Entreprise', status: 'Actif',
+    tags: ['agriculture', 'location'],
+    firstName: 'Youssef', lastName: 'El Mansouri', email: 'y.elmansouri@greenmaroc.ma',
+    website: '', phone: '+212661234567',
+    notes: 'Location espace de stockage mensuel',
+    billingAddress: '78 Route de Fès, Marrakech 40000', country: 'Maroc',
+    taxId: 'IF-34567890', paymentMethod: 'Espèces', addedThisMonth: true,
+  },
+  {
+    id: 'cust8', name: 'Omar Radi', type: 'Individuel', status: 'Inactif',
+    tags: [],
+    firstName: 'Omar', lastName: 'Radi', email: 'o.radi@email.com',
+    website: '', phone: '+212600777888',
+    notes: 'Compte inactif depuis T1 2026',
+    billingAddress: '5 Rue Patrice Lumumba, Tanger 90000', country: 'Maroc',
+    taxId: '', paymentMethod: 'Espèces', addedThisMonth: false,
+  },
+];
+
 // Calendar events for June 2026
 export const CALENDAR_EVENTS = [
   { date: 10, label: 'CNSS — Mai 2026',        societes: ['Atlas Tech Solutions', 'MediCare Pharma'], type: 'cnss',    statut: 'Soumis' },

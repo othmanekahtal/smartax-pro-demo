@@ -10,6 +10,7 @@ import Parametres  from './pages/Parametres';
 import Depenses    from './pages/Depenses';
 import Revenus     from './pages/Revenus';
 import Factures    from './pages/Factures';
+import Clients     from './pages/Clients';
 
 const PAGES = {
   dashboard:    Dashboard,
@@ -21,6 +22,7 @@ const PAGES = {
   depenses:     Depenses,
   revenus:      Revenus,
   factures:     Factures,
+  clients:      Clients,
 };
 
 export default function App() {
